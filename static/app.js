@@ -24,7 +24,19 @@ function generateCupcakeHTML(cupcake) {
 async function showInitialCupcakes() {
   const response = await axios.get(`${BASE_URL}/cupcakes`);
 
-  for (let cupcakeData of response.data.cupcakes) {
+
+
+  const cupcake_list= response.data.cupcakes
+
+//   Sort cupcake list by id
+
+  cupcake_list.sort(function(a,b){
+    return a.id - b.id
+  })
+
+
+  //generate cupcake html by id
+  for (let cupcakeData of cupcake_list) {
     let newCupcake = $(generateCupcakeHTML(cupcakeData));
     $(".cupcake-list").append(newCupcake);
   }
@@ -34,17 +46,18 @@ async function showInitialCupcakes() {
 
 /** handle form for adding of new cupcakes */
 
-$("#add-cupcake").on("click", async function (evt) {
-  evt.preventDefault();
-
-  console.log(this);
-  let image
+$("#cupcake-form").on("submit", async function (evt) {
+  
+    evt.preventDefault();
+    let image
 
   let flavor = $("#flavor").val();
   let rating = $("#rating").val();
   let size = $("#size").val();
   let img = $("#image").val();
 
+
+/**Set image to null if the field is empty to trigger default value from the backend */
     if (img == ""){
     image = null
   }
@@ -52,11 +65,8 @@ $("#add-cupcake").on("click", async function (evt) {
     image = img
   }
 
-console.log({flavor,rating,
-    size,
-    image});
     
-
+// post new cupcake in json
   const newCupcakeResponse = await axios.post(`${BASE_URL}/cupcakes`, {
     flavor,
     
@@ -87,38 +97,42 @@ $(".cupcake-list").on("click", ".delete-btn", async function (evt) {
 
 async function showEdit(evt){
     evt.preventDefault()
- 
+ //If save button for edit function button is already showing, do nothing 
     if($("#save-edit-cupcake").is(":visible")){
         return 
     }
+
+
+//else populate inputs with the existing info , hide add button and change form route and method
+
 
     else {
     let $cupcake = $(evt.target).closest("tr")
     let cupcakeId = $cupcake.attr("data-id");
     const response = await axios.get(`${BASE_URL}/cupcakes/${cupcakeId}`)
     
-let res = response.data.cupcake;
+    let res = response.data.cupcake;
 
-$("#flavor").val(res.flavor)
-$("#rating").val(res.rating);
-$("#size").val(res.size);
-$("#image").val(res.image);
-let id = parseInt(res.id)
+    $("#flavor").val(res.flavor)
+    $("#rating").val(res.rating);
+    $("#size").val(res.size);
+    $("#image").val(res.image);
+    let id = parseInt(res.id)
 
-$("#add-cupcake").hide()
+    $("#add-cupcake").hide()
 
 
-let $save_button = $(`<button type="submit" data_id=${id} id="save-edit-cupcake"class="btn  btn-success  btn-sm" >Save</button>`)
-$("#cupcake-form").append($save_button)
-$("#cupcake-form").attr("method","patch")
-$("#cupcake-form").attr("action",`/api/cupcakes/${id}`)
-console.log($("#cupcake-form").attr("method"));
+    let $save_button = $(`<button type="submit" data_id=${id} id="save-edit-cupcake"class="btn  btn-success  btn-sm" >Save</button>`)
+    $("#cupcake-form").append($save_button)
+    $("#cupcake-form").attr("method","patch")
+    $("#cupcake-form").attr("action",`/api/cupcakes/${id}`)
+    console.log($("#cupcake-form").attr("method"));
 
     }
 }
 
 
-
+//save an updated info
 async function patchEdit(evt){
 
     evt.preventDefault();
@@ -138,7 +152,7 @@ let button = $(evt.target)
       else{
       image = img
     }
-
+//update info to database
     await axios.patch(`${BASE_URL}/cupcakes/${id}`, {
         flavor,
         rating,
@@ -148,7 +162,7 @@ let button = $(evt.target)
 
       
 
-
+//reset form and reload the page
   $("#cupcake-form").trigger("reset");
   $("#save-edit-cupcake").hide()
   $("#add-cupcake").show()
