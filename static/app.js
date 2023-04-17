@@ -83,6 +83,11 @@ $(".cupcake-list").on("click", ".delete-btn", async function (evt) {
 async function showEdit(evt){
     evt.preventDefault()
  
+    if($("#save-edit-cupcake").is(":visible")){
+        return 
+    }
+
+    else {
     let $cupcake = $(evt.target).closest("tr")
     let cupcakeId = $cupcake.attr("data-id");
     const response = await axios.get(`${BASE_URL}/cupcakes/${cupcakeId}`)
@@ -101,10 +106,20 @@ let $save_button = $(`<button type="submit" data_id=${id} id="save-edit-cupcake"
 $("#cupcake-form").append($save_button)
 $("#cupcake-form").attr("method","patch")
 console.log($("#cupcake-form").attr("method"));
+
+    }
 }
 
+
+
 async function patchEdit(evt){
+
     evt.preventDefault();
+
+
+ 
+
+    
     let button = $(evt.target)
     let id = button.attr("data_id")
     let image
@@ -140,7 +155,7 @@ console.log($("#cupcake-form").attr("method"));
 
 
 
-$(showInitialCupcakes)
+location.reload(true);
 
 
 
