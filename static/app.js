@@ -1,5 +1,5 @@
 
-const BASE_URL = "http://127.0.0.1:5000/api";
+const BASE_URL = "http://localhost:5000/api";
 
 
 /** given data about a cupcake, generate html */
@@ -36,6 +36,8 @@ async function showInitialCupcakes() {
 
 $("#add-cupcake").on("click", async function (evt) {
   evt.preventDefault();
+
+  console.log(this);
   let image
 
   let flavor = $("#flavor").val();
@@ -50,13 +52,16 @@ $("#add-cupcake").on("click", async function (evt) {
     image = img
   }
 
-
+console.log({flavor,rating,
+    size,
+    image});
     
 
   const newCupcakeResponse = await axios.post(`${BASE_URL}/cupcakes`, {
     flavor,
-    rating,
+    
     size,
+    rating,
     image
   });
 
@@ -102,9 +107,11 @@ let id = parseInt(res.id)
 
 $("#add-cupcake").hide()
 
+
 let $save_button = $(`<button type="submit" data_id=${id} id="save-edit-cupcake"class="btn  btn-success  btn-sm" >Save</button>`)
 $("#cupcake-form").append($save_button)
 $("#cupcake-form").attr("method","patch")
+$("#cupcake-form").attr("action",`/api/cupcakes/${id}`)
 console.log($("#cupcake-form").attr("method"));
 
     }
@@ -116,11 +123,7 @@ async function patchEdit(evt){
 
     evt.preventDefault();
 
-
- 
-
-    
-    let button = $(evt.target)
+let button = $(evt.target)
     let id = button.attr("data_id")
     let image
 
@@ -151,6 +154,7 @@ async function patchEdit(evt){
   $("#add-cupcake").show()
 
 $("#cupcake-form").attr("method","post")
+$("#cupcake-form").attr("action",`/api/cupcakes`)
 console.log($("#cupcake-form").attr("method"));
 
 
